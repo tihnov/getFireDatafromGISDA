@@ -62,32 +62,34 @@ headers = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/
 
 def getDatafromGISDA(url = None, params = None, dataPath = None, filename = None, headers = None):
     # get data from GISDA
+    log_main.log("get data {} from GISDA".format(filename), "INFO")
     response = requests.get(url, params = params, headers = headers)
+    log_main.log('response {} - header {}'.format(response.status_code, response.headers), "INFO")
     file_Path = '{}/{}'.format(dataPath,filename)
-    log_main.log('File {} downloaded response {} in {} bytes'.formatlen(filename, response.status_code, response.content.count), "INFO")
+    log_main.log('File {} downloaded response {}'.format(filename, response.status_code), "INFO")
     if response.status_code == 200:
         with open(file_Path, 'wb') as file:
             file.write(response.content)
-        log_main.log('File {} downloaded successfully {} byte'.format(filename, response.content.count), "INFO")
+        log_main.log('File {} downloaded successfully'.format(filename), "INFO")
     else:
         log_main.log('Failed to download file {}'.format(filename), "INFO")    
 
     # show info
-    log_main.log("get data {} from GISDA".format(filename), "INFO")
     log_main.log("save data to {}/{}.xlsx".format(dataPath,filename), "INFO")
+    return response.status_code
 
 def startDownloadData(filename = None, thisPath = None, thisName = None):
     params = {"f":"{}{}".format(str_Offset_params, filename)}
     log_main.log("filename : {} - thisName : {}".format(filename, thisName), "INFO")
     log_main.log("params : {}".format(params), "INFO")
     try:
-        getDatafromGISDA(url = str_GISDAURL, params = params, dataPath = thisPath, filename = thisName, headers = headers)
+        code = getDatafromGISDA(url = str_GISDAURL, params = params, dataPath = thisPath, filename = thisName, headers = headers)
         with open("{}/datalist.txt".format(srcPath), "a") as file:
-            file.writelines("{} - completed\n".format(thisName))
+            file.writelines("{} - {} - completed\n".format(thisName, code))
     except Exception as e:  
         log_main.log("Error on get data from GISDA : {}".format(e), "ERROR")
         with open("{}/datalist.txt".format(srcPath), "a") as file:
-            file.writelines("{} - Error : {}\n".format(thisName, e))
+            file.writelines("{} - {} - Error : {}\n".format(thisName, code, e))
     time.sleep(10)
 
 # Defining main function
