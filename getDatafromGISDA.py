@@ -64,11 +64,11 @@ def getDatafromGISDA(url = None, params = None, dataPath = None, filename = None
     # get data from GISDA
     response = requests.get(url, params = params, headers = headers)
     file_Path = '{}/{}'.format(dataPath,filename)
-    log_main.log('File {} downloaded response {} in {} bytes'.formatlen(filename, response.status_code, len(response.content)), "INFO")
+    log_main.log('File {} downloaded response {} in {} bytes'.formatlen(filename, response.status_code, response.content.count), "INFO")
     if response.status_code == 200:
         with open(file_Path, 'wb') as file:
             file.write(response.content)
-        log_main.log('File {} downloaded successfully {} byte'.format(filename, len(response.content)), "INFO")
+        log_main.log('File {} downloaded successfully {} byte'.format(filename, response.content.count), "INFO")
     else:
         log_main.log('Failed to download file {}'.format(filename), "INFO")    
 
