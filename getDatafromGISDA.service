@@ -1,0 +1,10 @@
+[Unit]
+Description=get Data from GISDA
+
+[Service]
+User=idealtree
+Group=idealtree
+ExecStart=/home/idealtree/firespot_whatisit/bin/python /home/idealtree/firespot_whatisit/src/getDatafromGISDA.py
+
+[Install]
+WantedBy=multi-user.target
