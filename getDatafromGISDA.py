@@ -143,15 +143,17 @@ def main():
                             startDownloadData(filename = filename, thisPath = thisPath, thisName = thisName)
             firstTime = False
         elif thisDay > nextCheck:
+            log_main.log("run on update data : {}".format(thisDay), "INFO")
             with open("{}/datalist.txt".format(srcPath)) as file:
                 lastline = (list(file)[-1])
+                log_main.log("last line : : {}".format(lastline), "INFO")
                 lastline_index = lastline.find("_")
             if lastline_index != -1:
+                lastline_index += 1
                 lastline = lastline[lastline_index:lastline_index+8]
             lastDate = datetime.datetime.strptime(lastline, "%Y%m%d")
             log_main.log("lastDate : {} - {}".format(lastDate, lastline), "INFO")
-            getDay = thisDay - timedelta(days = 1)
-            if lastDate == getDay:
+            if (thisDay - lastDate) < timedelta(days = 1):
                 log_main.log("last update to : {}".format(lastDate), "INFO")
                 nextCheck = thisDay + timedelta(days = 1)
             else:
@@ -175,8 +177,6 @@ def main():
                             filename = "{}/80_Report/{}/{}/{}_{}{:02d}{:02d}.{}".format(year, value["Type"], valueData, value["TypeName"][keyData], year, month, day, value["FileType"])
                             startDownloadData(filename = filename, thisPath = thisPath, thisName = thisName)
                 nextCheck = thisDay + timedelta(minutes = 1)
-
-
 
 # Using the special variable 
 # __name__
