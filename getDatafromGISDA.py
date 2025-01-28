@@ -156,6 +156,7 @@ def main():
             if (thisDay - lastDate) < timedelta(days = 1):
                 log_main.log("last update to : {}".format(lastDate), "INFO")
                 nextCheck = thisDay + timedelta(days = 1)
+                log_main.log("next update to : {}".format(nextCheck), "INFO")
             else:
                 getDate = lastDate + timedelta(days = 1)
                 year = getDate.year
@@ -177,6 +178,9 @@ def main():
                             filename = "{}/80_Report/{}/{}/{}_{}{:02d}{:02d}.{}".format(year, value["Type"], valueData, value["TypeName"][keyData], year, month, day, value["FileType"])
                             startDownloadData(filename = filename, thisPath = thisPath, thisName = thisName)
                 nextCheck = thisDay + timedelta(minutes = 1)
+        else:
+            log_main.log("next check : {}".format(nextCheck), "INFO")
+            time.sleep(7200)
 
 # Using the special variable 
 # __name__
