@@ -97,16 +97,17 @@ def main():
     # get data from GISDA
     # get today date
     list_args = sys.argv
+    nextCheck = datetime.datetime.now()
     while True:
         thisDay = datetime.datetime.now()
         year = thisDay.year
         month = thisDay.month
         day = thisDay.day
         firstTime = False
-        todayRun = False
         log_main.log("today : {}-{}-{}".format(year, month, day), "INFO")
         log_main.log("args : {}".format(list_args), "INFO")
         log_main.log("run on main : {}".format(datetime.datetime.now), "INFO")
+
         if "firstTime" in list_args:
             sys.argv = sys.argv.remove("firstTime")
             firstTime = True
@@ -141,26 +142,40 @@ def main():
                             filename = "{}/80_Report/{}/{}/{}_{}{:02d}{:02d}.{}".format(year, value["Type"], valueData, value["TypeName"][keyData], year, month, day, value["FileType"])
                             startDownloadData(filename = filename, thisPath = thisPath, thisName = thisName)
             firstTime = False
+        elif thisDay > nextCheck:
+            with open("{}/datalist.txt".format(srcPath)) as file:
+                lastline = (list(file)[-1])
+                lastline_index = lastline.find("_")
+            if lastline_index != -1:
+                lastline = lastline[lastline_index:lastline_index+8]
+            lastDate = datetime.datetime.strptime(lastline, "%Y%m%d")
+            log_main.log("lastDate : {} - {}".format(lastDate, lastline), "INFO")
+            getDay = thisDay - timedelta(days = 1)
+            if lastDate == getDay:
+                log_main.log("last update to : {}".format(lastDate), "INFO")
+                nextCheck = thisDay + timedelta(days = 1)
+            else:
+                getDate = lastDate + timedelta(days = 1)
+                year = getDate.year
+                month = getDate.month
+                day = getDate.day
+                thisPath = None
+                thisName = None
+                for key, value in dict_fileStructure.items():
+                    if key == "excel":
+                        for keyData, valueData in value["TypeData"].items():
+                            thisPath = dataPath
+                            thisName = "{}_{}{:02d}{:02d}.{}".format(keyData, year, month, day, value["FileType"])
+                            filename = "{}/80_Report/{}/{}/{}_{}{:02d}{:02d}.{}".format(year, value["Type"], valueData, value["TypeName"][keyData], year, month, day, value["FileType"])
+                            startDownloadData(filename = filename, thisPath = thisPath, thisName = thisName)
+                    elif key == "image":
+                        for keyData, valueData in value["TypeData"].items():
+                            thisPath = imgPath
+                            thisName = "{}_{}{:02d}{:02d}.{}".format(keyData, year, month, day, value["FileType"])
+                            filename = "{}/80_Report/{}/{}/{}_{}{:02d}{:02d}.{}".format(year, value["Type"], valueData, value["TypeName"][keyData], year, month, day, value["FileType"])
+                            startDownloadData(filename = filename, thisPath = thisPath, thisName = thisName)
+                nextCheck = thisDay + timedelta(minutes = 1)
 
-        elif thisDay.hour == 9 and thisDay.minute > 0 and todayRun == False:
-            thisPath = None
-            thisName = None
-            for key, value in dict_fileStructure.items():
-                if key == "excel":
-                    for keyData, valueData in value["TypeData"].items():
-                        thisPath = dataPath
-                        thisName = "{}_{}{:02d}{:02d}.{}".format(keyData, year, month, day, value["FileType"])
-                        filename = "{}/80_Report/{}/{}/{}_{}{:02d}{:02d}.{}".format(year, value["Type"], valueData, value["TypeName"][keyData], year, month, day, value["FileType"])
-                        startDownloadData(filename = filename, thisPath = thisPath, thisName = thisName)
-                elif key == "image":
-                    for keyData, valueData in value["TypeData"].items():
-                        thisPath = imgPath
-                        thisName = "{}_{}{:02d}{:02d}.{}".format(keyData, year, month, day, value["FileType"])
-                        filename = "{}/80_Report/{}/{}/{}_{}{:02d}{:02d}.{}".format(year, value["Type"], valueData, value["TypeName"][keyData], year, month, day, value["FileType"])
-                        startDownloadData(filename = filename, thisPath = thisPath, thisName = thisName)
-            todayRun = True
-        else:
-            time.sleep(1800)
 
 
 # Using the special variable 
