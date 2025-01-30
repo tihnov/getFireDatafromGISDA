@@ -84,12 +84,16 @@ def startDownloadData(filename = None, thisPath = None, thisName = None):
     log_main.log("params : {}".format(params), "INFO")
     try:
         code = getDatafromGISDA(url = str_GISDAURL, params = params, dataPath = thisPath, filename = thisName, headers = headers)
-        with open("{}/datalist.txt".format(srcPath), "a") as file:
-            file.writelines("{} - {} - completed\n".format(thisName, code))
+        if code == 200:
+            with open("{}/datalist.txt".format(srcPath), "a") as file:
+                file.writelines("{} - {} - completed\n".format(thisName, code))
+        else:
+            with open("{}/errorlist.txt".format(srcPath), "a") as file:
+                file.writelines("{} - {} - error : {}\n".format(thisName, code, "Failed to download file"))
     except Exception as e:  
         log_main.log("Error on get data from GISDA : {}".format(e), "ERROR")
-        with open("{}/datalist.txt".format(srcPath), "a") as file:
-            file.writelines("{} - {} - Error : {}\n".format(thisName, code, e))
+        with open("{}/errorlist.txt".format(srcPath), "a") as file:
+            file.writelines("{} - {} - error : {}\n".format(thisName, code, e))
     time.sleep(10)
 
 # Defining main function
@@ -153,7 +157,7 @@ def main():
                 lastline = lastline[lastline_index:lastline_index+8]
             lastDate = datetime.datetime.strptime(lastline, "%Y%m%d")
             log_main.log("lastDate : {} - {}".format(lastDate, lastline), "INFO")
-            if (thisDay - lastDate) < timedelta(days = 1):
+            if (thisDay - lastDate) < timedelta(days = 2):
                 log_main.log("last update to : {}".format(lastDate), "INFO")
                 nextCheck = thisDay + timedelta(days = 1)
                 log_main.log("next update to : {}".format(nextCheck), "INFO")
